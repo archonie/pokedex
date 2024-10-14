@@ -10,6 +10,12 @@ import UIKit
 class PokedexCell: UICollectionViewCell {
     
     //MARK: - Properties
+    var pokemon: Pokemon? {
+        didSet{
+            nameLabel.text = pokemon?.name?.capitalized
+            imageView.image = pokemon?.image
+        }
+    }
     
     let imageView: UIImageView = {
         let iv = UIImageView()
