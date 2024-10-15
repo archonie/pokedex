@@ -1,17 +1,19 @@
-//
-//  PokedexCell.swift
-//  PokedexApp
-//
-//  Created by Doğan Ensar Papuçcuoğlu on 12.10.2024.
-//
+
 
 import UIKit
 
+protocol PokedexCellDelegate {
+    func presentInfoView(withPokemon pokemon: Pokemon)
+}
+
 class PokedexCell: UICollectionViewCell {
     
-    //MARK: - Properties
+    // MARK: - Properties
+    
+    var delegate: PokedexCellDelegate?
+        
     var pokemon: Pokemon? {
-        didSet{
+        didSet {
             nameLabel.text = pokemon?.name?.capitalized
             imageView.image = pokemon?.image
         }
@@ -19,7 +21,7 @@ class PokedexCell: UICollectionViewCell {
     
     let imageView: UIImageView = {
         let iv = UIImageView()
-        iv.backgroundColor = .secondarySystemBackground
+        iv.backgroundColor = .groupTableViewBackground
         iv.contentMode = .scaleAspectFit
         return iv
     }()
@@ -27,8 +29,10 @@ class PokedexCell: UICollectionViewCell {
     lazy var nameContainerView: UIView = {
         let view = UIView()
         view.backgroundColor = .mainPink()
+        
         view.addSubview(nameLabel)
         nameLabel.center(inView: view)
+        
         return view
     }()
     
@@ -40,26 +44,41 @@ class PokedexCell: UICollectionViewCell {
         return label
     }()
     
-    //MARK: - Init
+    // MARK: - Init
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
         configureViewComponents()
     }
     
-    required init?(coder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    //MARK: - Helper Functions
+    // MARK: - Selectors
+    
+    @objc func handleLongPress(sender: UILongPressGestureRecognizer) {
+        if sender.state == .began {
+            guard let pokemon = self.pokemon else { return }
+            delegate?.presentInfoView(withPokemon: pokemon)
+        }
+    }
+    
+    // MARK: - Helper Functions
     
     func configureViewComponents() {
         self.layer.cornerRadius = 10
         self.clipsToBounds = true
+        
         addSubview(imageView)
         imageView.anchor(top: topAnchor, left: leftAnchor, bottom: nil, right: rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: 0, paddingRight: 0, width: 0, height: self.frame.height - 32)
+        
         addSubview(nameContainerView)
         nameContainerView.anchor(top: nil, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: 0, paddingRight: 0, width: 0, height: 32)
+        
+        let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+        self.addGestureRecognizer(longPressGestureRecognizer)
     }
     
 }
